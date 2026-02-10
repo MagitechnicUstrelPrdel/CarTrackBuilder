@@ -1,0 +1,32 @@
+.map-grid{
+    display: grid;
+    grid-template-rows: repeat(20, 40px);
+    grid-template-columns: repeat(20, 40px);
+    width: auto;
+    height: auto;
+
+    margin: 0 auto;
+}
+
+.tile{
+    width: 40px;
+    height: 40px;
+
+}
+
+.tile:hover{
+    background-blend-mode: darken;
+    background-color: gray;
+}
+
+.tile-grass{
+    background-image: url("images/GrassTileIcon.jpg");
+}
+
+.tile-road{
+    background-image: url("images/RoadTileIcon.jpg");
+}
+
+.tile-water{
+    background-image: url("images/WaterTileIcon.jpg");
+}
