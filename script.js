@@ -1,20 +1,45 @@
-const tileTypes = ["tile-grass", "tile-road", "tile-water"]
-const mapState = Array(400).fill(tileTypes[0]);
+const tileTypes = ["tile-grass", "tile-road", "tile-water"];
+let mapState = Array(400).fill(tileTypes[0]);
 
-const map = generateMap();
+let currentMapId = null;
 
-document.body.append(map);
+const mainMenuScreen = document.getElementById('main-menu');
+const editorScreen = document.getElementById('editor-screen');
 
-initEvents();
-function generateMap(){
+const newMapBtn = document.getElementById('new-map-btn');
+const saveBtn = document.getElementById('save-btn');
+const exitBtn = document.getElementById('exit-btn');
 
-    const map = document.createElement('div');
-    map.classList.add('map-grid');
+const mapNameInput = document.querySelector('input[name="map-name"]');
+const mapContainer = document.querySelector('.container');
+const savedMapsList = document.getElementById('saved-maps-list');
 
-    for (let i = 0; i < mapState.length; i++){
-        map.append(generateTile(mapState[i], i));
+
+function showScreen(screenElement) {
+    screenElement.classList.remove('hidden');
+}
+
+function hideScreen(screenElement) {
+    screenElement.classList.add('hidden');
+}
+
+showScreen(mainMenuScreen);
+hideScreen(editorScreen);
+displaySavedMaps();
+
+function generateMap(initialMapState = mapState){
+    const existingMapGrid = document.querySelector('.map-grid');
+    if (existingMapGrid) {
+        existingMapGrid.remove();
     }
-    return map;
+
+    const mapGrid = document.createElement('div');
+    mapGrid.classList.add('map-grid');
+
+    for (let i = 0; i < initialMapState.length; i++){
+        mapGrid.append(generateTile(initialMapState[i], i));
+    }
+    return mapGrid;
 }
 
 function generateTile(type, index){
@@ -34,24 +59,128 @@ function changeTileType(tile, index){
 
     let nextClass = tileTypes[0];
 
+
     if(currentClass){
         let nextIndex = (tileTypes.indexOf(currentClass) + 1) % tileTypes.length
         nextClass = tileTypes[nextIndex];
         tile.classList.remove(currentClass);
     }
-    console.log(nextClass);
-
     tile.classList.add(nextClass);
     mapState[index] = nextClass;
 }
 
-function initEvents(){
-    const mapTiles= document.querySelectorAll('.tile');
+function handleTileClick(event){
+    const clickedTile = event.target;
+    if (clickedTile.classList.contains('tile')) {
+        const index = parseInt(clickedTile.dataset.index);
+        changeTileType(clickedTile, index);
+    }
+}
 
-    mapTiles.forEach(tile => {
-        tile.addEventListener('click', () =>{
-            const index = parseInt(tile.dataset.index);
-            changeTileType(tile, index);
+function startNewMap(){
+    mapState = Array(400).fill(tileTypes[0]);
+    currentMapId = null;
+    mapNameInput.value = "";
+
+    const newMapGrid = generateMap(mapState);
+    mapContainer.append(newMapGrid);
+    newMapGrid.addEventListener('click', handleTileClick);
+}
+
+function loadMap(mapObject){
+    mapState = mapObject.state;
+    currentMapId = mapObject.id;
+    mapNameInput.value = mapObject.name;
+
+    const loadedMapGrid = generateMap(mapState);
+    mapContainer.append(loadedMapGrid);
+    loadedMapGrid.addEventListener('click', handleTileClick);
+
+    hideScreen(mainMenuScreen);
+    showScreen(editorScreen);
+}
+
+function displaySavedMaps(){
+    savedMapsList.innerHTML = "";
+
+    const savedMapsJSON = localStorage.getItem("savedMaps");
+    const savedMaps = savedMapsJSON ? JSON.parse(savedMapsJSON) : [];
+
+    if (savedMaps.length > 0) {
+        const title = document.createElement('h3');
+        title.textContent = "Uložené mapy:";
+        savedMapsList.append(title);
+
+        savedMaps.forEach(map => {
+            const mapButton = document.createElement('button');
+            mapButton.textContent = map.name;
+            mapButton.classList.add('load-map-item');
+            mapButton.addEventListener('click', () => loadMap(map));
+            savedMapsList.append(mapButton);
         });
+    } else {
+        const message = document.createElement('p');
+        message.textContent = "Žádné uložené mapy.";
+        savedMapsList.append(message);
+    }
+}
+
+newMapBtn.addEventListener('click', () => {
+    startNewMap();
+    hideScreen(mainMenuScreen);
+    showScreen(editorScreen);
+});
+
+exitBtn.addEventListener('click', () => {
+    hideScreen(editorScreen);
+    showScreen(mainMenuScreen);
+    displaySavedMaps();
+});
+
+function initSaveFunctionality(){
+    saveBtn.addEventListener('click', () => {
+        const mapName = mapNameInput.value.trim();
+        if (!mapName) {
+            alert("Zadejte jméno mapy.");
+            return;
+        }
+
+        let savedMapsJSON = localStorage.getItem("savedMaps");
+        let savedMaps = savedMapsJSON ? JSON.parse(savedMapsJSON) : [];
+
+        let mapIdToSave = currentMapId;
+
+        if (!mapIdToSave) {
+            mapIdToSave = generateUUID();
+        }
+
+        const mapObject = createMapObject(mapIdToSave, mapName, mapState);
+
+        const existingIndex = savedMaps.findIndex(m => m.id === mapIdToSave);
+
+        if (existingIndex >= 0) {
+            savedMaps[existingIndex] = mapObject;
+        } else {
+            savedMaps.push(mapObject);
+        }
+
+        localStorage.setItem("savedMaps", JSON.stringify(savedMaps));
+        alert(`Mapa "${mapName}" byla uložena!`);
+        currentMapId = mapIdToSave;
+        displaySavedMaps();
     });
 }
+
+function createMapObject(id, name, state) {
+    return {
+        id: id,
+        name: name,
+        state: state.slice(),
+    };
+}
+
+function generateUUID() {
+    return crypto.randomUUID();
+}
+
+initSaveFunctionality();
