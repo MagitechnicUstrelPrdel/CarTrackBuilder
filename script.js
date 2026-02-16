@@ -143,8 +143,8 @@ function createMapListItem(map){
     mapItemWrapper.append(removeMapBtn);
 
     removeMapBtn.addEventListener('click', () =>{
-        mapItemWrapper.remove();
         removeMapItemList(map.id);
+        displaySavedMaps();
     });
 
 
@@ -158,6 +158,7 @@ function removeMapItemList(id){
     const updateMaps = savedMaps.filter(m => m.id !== id)
 
     localStorage.setItem("savedMaps", JSON.stringify(updateMaps))
+
 }
 
 
