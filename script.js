@@ -138,10 +138,29 @@ function createMapListItem(map){
 
     const removeMapBtn = document.createElement('button');
     removeMapBtn.innerText = 'X';
+    removeMapBtn.classList.add('remove-btn');
+
     mapItemWrapper.append(removeMapBtn);
+
+    removeMapBtn.addEventListener('click', () =>{
+        mapItemWrapper.remove();
+
+    });
+
 
     return mapItemWrapper;
 }
+
+function removeMapItemList(id){
+    const savedMapsJSON = localStorage.getItem("savedMaps");
+    const savedMaps = savedMapsJSON ? JSON.parse(savedMapsJSON) : [];
+
+    const updateMaps = savedMaps.filter(m => m.id !== id)
+
+    localStorage.setItem("savedMaps", JSON.stringify(updateMaps))
+}
+
+
 
 function initBtnsFunctionality(){
     newMapBtn.addEventListener('click', () => {

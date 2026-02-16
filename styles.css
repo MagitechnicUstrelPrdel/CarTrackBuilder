@@ -105,7 +105,7 @@ button {
     transform: translateY(-1px);
 }
 
-#main-menu button {
+#new-map-btn {
     padding: 15px 30px;
     font-size: 18px;
     background-color: #007bff;
@@ -116,7 +116,7 @@ button {
     transition: background-color 0.3s ease;
 }
 
-#main-menu button:hover {
+#new-map-btn:hover {
     background-color: #0056b3;
 }
 
@@ -150,4 +150,13 @@ button {
     flex-direction: column;
     align-items: center;
     gap: 5px;
+}
+
+.remove-btn{
+    background-color: transparent;
+    color: red;
+    font-weight: normal;
+}
+.remove-btn{
+    font-weight: bold;
 }
