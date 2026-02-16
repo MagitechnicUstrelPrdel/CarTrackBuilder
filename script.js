@@ -144,7 +144,7 @@ function createMapListItem(map){
 
     removeMapBtn.addEventListener('click', () =>{
         mapItemWrapper.remove();
-
+        removeMapItemList(map.id);
     });
 
 
