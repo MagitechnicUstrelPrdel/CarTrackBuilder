@@ -9,11 +9,18 @@ const editorScreen = document.getElementById('editor-screen');
 const newMapBtn = document.getElementById('new-map-btn');
 const saveBtn = document.getElementById('save-btn');
 const exitBtn = document.getElementById('exit-btn');
+const resetBtn = document.getElementById('reset-btn')
 
 const mapNameInput = document.querySelector('input[name="map-name"]');
 const mapContainer = document.querySelector('.container');
 const savedMapsList = document.getElementById('saved-maps-list');
 
+
+showScreen(mainMenuScreen);
+hideScreen(editorScreen);
+displaySavedMaps();
+
+initEvents()
 
 function showScreen(screenElement) {
     screenElement.classList.remove('hidden');
@@ -23,9 +30,7 @@ function hideScreen(screenElement) {
     screenElement.classList.add('hidden');
 }
 
-showScreen(mainMenuScreen);
-hideScreen(editorScreen);
-displaySavedMaps();
+
 
 function generateMap(initialMapState = mapState){
     const existingMapGrid = document.querySelector('.map-grid');
@@ -94,6 +99,7 @@ function loadMap(mapObject){
 
     const loadedMapGrid = generateMap(mapState);
     mapContainer.append(loadedMapGrid);
+
     loadedMapGrid.addEventListener('click', handleTileClick);
 
     hideScreen(mainMenuScreen);
@@ -112,11 +118,7 @@ function displaySavedMaps(){
         savedMapsList.append(title);
 
         savedMaps.forEach(map => {
-            const mapButton = document.createElement('button');
-            mapButton.textContent = map.name;
-            mapButton.classList.add('load-map-item');
-            mapButton.addEventListener('click', () => loadMap(map));
-            savedMapsList.append(mapButton);
+            savedMapsList.append(createMapListItem(map));
         });
     } else {
         const message = document.createElement('p');
@@ -125,17 +127,41 @@ function displaySavedMaps(){
     }
 }
 
-newMapBtn.addEventListener('click', () => {
-    startNewMap();
-    hideScreen(mainMenuScreen);
-    showScreen(editorScreen);
-});
+function createMapListItem(map){
+    const mapItemWrapper = document.createElement('div');
 
-exitBtn.addEventListener('click', () => {
-    hideScreen(editorScreen);
-    showScreen(mainMenuScreen);
-    displaySavedMaps();
-});
+    const mapButton = document.createElement('button');
+    mapButton.textContent = map.name;
+    mapButton.classList.add('load-map-item');
+    mapButton.addEventListener('click', () => loadMap(map));
+    mapItemWrapper.append(mapButton)
+
+    const removeMapBtn = document.createElement('button');
+    removeMapBtn.innerText = 'X';
+    mapItemWrapper.append(removeMapBtn);
+
+    return mapItemWrapper;
+}
+
+function initBtnsFunctionality(){
+    newMapBtn.addEventListener('click', () => {
+        startNewMap();
+        hideScreen(mainMenuScreen);
+        showScreen(editorScreen);
+    });
+
+    exitBtn.addEventListener('click', () => {
+        hideScreen(editorScreen);
+        showScreen(mainMenuScreen);
+        displaySavedMaps();
+    });
+
+    resetBtn.addEventListener('click', () =>{
+       startNewMap();
+    });
+
+}
+
 
 function initSaveFunctionality(){
     saveBtn.addEventListener('click', () => {
@@ -171,6 +197,11 @@ function initSaveFunctionality(){
     });
 }
 
+function initEvents(){
+    initSaveFunctionality()
+    initBtnsFunctionality()
+}
+
 function createMapObject(id, name, state) {
     return {
         id: id,
@@ -183,4 +214,4 @@ function generateUUID() {
     return crypto.randomUUID();
 }
 
-initSaveFunctionality();
+
